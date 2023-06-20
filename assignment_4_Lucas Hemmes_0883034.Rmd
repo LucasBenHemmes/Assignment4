@@ -5,7 +5,7 @@ title: |
   | 2022-2023
 author: |
   | Lucas Hemmes Github: LucasBenHemmes
-  | your_email@students.uu.nl
+  |l.b.hemmes@students.uu.nl
   | http://www.github.com/LucasBenHemmes
 date: April 2023
 urlcolor: purple
@@ -51,8 +51,13 @@ One of the variables in the dataset is `revolutions`, the number of revolutions,
 
 ```{r}
 library(modelsummary); library(tidyverse)
+GrowthSW <- mutate(GrowthSW, treat = revolutions > 0) #False is no revolution!
 
-# write your code here
+datasummary(treat * (growth + rgdp60) ~ mean + median + sd + min + max, data = GrowthSW)
+ 
+ #with some themes, the table will not appear!
+
+
 ```
 
 **Designated place**: type one or two sentences describing this table of a fellow student below. For example, comment on the mean and median growth of both groups. Then stage, commit and push it to their github repository. 
@@ -66,11 +71,12 @@ In question 2, we have seen that growth rates differ markedly between countries 
 
 ```{r}
 # write t test here
+t.test(growth ~ treat, data = GrowthSW)
 
 ```
 
 **Question 3.2**: What is the $p$-value of the test, and what does that mean? Write down your answer below.
-
+P = 0.06871 > 0.05 alternative hypothesis holds true true difference in means between group FALSE and group TRUE is not equal to 0
 
 We can also control for other factors by including them in a linear model, for example:
 
@@ -79,21 +85,24 @@ $$
 $$
 
 **Question 3.3**: What do you think the purpose of including the variable `rgdp60` is? Look at `?GrowthSW` to find out what the variables mean. 
-
+rgdp60 is the value of gdp per capita in 1960 in 1960 US dollars. The purpose of adding this, is adding a starting point of the GDP in this model.
 
 We now want to estimate a stepwise model. Stepwise means that we first estimate a univariate regression $\text{growth}_i = \beta_0 + \beta_1 \cdot \text{treat}_i + \epsilon_i$, and in each subsequent model, we add one control variable. 
 
 **Question 3.4**: Write four models, titled `model1`, `model2`, `model3`, `model4` (using the `lm` function) to memory. Hint: you can also use the `update` function to add variables to an already existing specification.
 
 ```{r}
-
+model1 <- lm(growth ~ treat, data = GrowthSW)
+model2 <- lm(growth ~ treat + rgdp60, data = GrowthSW)
+model3 <- lm(growth ~ treat + rgdp60 + tradeshare, data = GrowthSW)
+model4 <- lm(growth ~ treat + rgdp60 + tradeshare + education, data = GrowthSW)
 ```
 
 Now, we put the models in a list, and see what `modelsummary` gives us:
 
 ```{r}
 list(model1, model2, model3, model4) |>
-  modelsummary(stars=T,
+  modelsummary(stars=T,gof_map = c("nobs", "r.squared")
 # edit this to remove the statistics other than R-squared
 # and N
 ) 
@@ -102,20 +111,36 @@ list(model1, model2, model3, model4) |>
 
 **Question 3.5**: Edit the code chunk above to remove many statistics from the table, but keep only the number of observations $N$, and the $R^2$ statistic. 
 
+
 **Question 3.6**: According to this analysis, what is the main driver of economic growth? Why?
+education is the main driver, in model 4 it explains 31.8% of growth. this is when education was added, this made the most difference out of all 4 variables. It also has 3 stars, which means its statistically significant.
 
 **Question 3.7**: In the code chunk below, edit the table such that the cells (including standard errors) corresponding to the variable `treat` have a red background and white text. Make sure to load the `kableExtra` library beforehand.
 
 ```{r}
 library(kableExtra)
 list(model1, model2, model3, model4) |>
-  modelsummary(stars=T, gof_map = c("nobs", "r.squared")) 
+  modelsummary(stars=T, gof_map = c("nobs", "r.squared")) %>%
+    row_spec(3, color = 'white') %>%
+      row_spec(3, background = 'red') %>%
+  row_spec(4, color = 'white') %>%
+      row_spec(4, background = 'red')
 # use functions from modelsummary to edit this table
 ```
 
 **Question 3.8**: Write a piece of code that exports this table (without the formatting) to a Word document. 
 
 ```{r}
+list(model1, model2, model3, model4) |>
+  modelsummary(stars=T, gof_map = c("nobs", "r.squared"), output = "table.docx") %>%
+    row_spec(3, color = 'white') %>%
+      row_spec(3, background = 'red') %>%
+  row_spec(4, color = 'white') %>%
+      row_spec(4, background = 'red') %>%
+   kableExtra::save_kable(file = "table.docx")
+
+
+  
 
 ```
 
