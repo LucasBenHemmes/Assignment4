@@ -61,7 +61,7 @@ datasummary(treat * (growth + rgdp60) ~ mean + median + sd + min + max, data = G
 ```
 
 **Designated place**: type one or two sentences describing this table of a fellow student below. For example, comment on the mean and median growth of both groups. Then stage, commit and push it to their github repository. 
-
+The mean and median growth of countries that did not have a revolution is higher than the countries that did.
 
 ### Part 3: Make a table summarizing reressions using modelsummary and kable
 
